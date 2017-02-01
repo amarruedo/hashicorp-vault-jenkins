@@ -2,21 +2,6 @@
 
 import groovy.json.*
 
-def call(String nodeName = 'master', String vaultAddress = 'http://localhost:8200', String username, String password, String secretName) {
-
-  node(nodeName){
-
-      response = sh(returnStdout: true, script:"set +x; curl -s " + vaultAddress + "/v1/auth/userpass/login/" + username +" -d '{ \"password\": \"" + password + "\" }'").trim()
-      def result = parseJSON(response, "client_token")
-      def vault_token = result.toString()
-
-      secrets = sh(returnStdout: true, script:"set +x; curl -s -X GET -H \"X-Vault-Token:" + vault_token + "\" " + vaultAddress + "/v1/secret/" + secretName).trim()
-      result = parseJSON(secrets, "data")
-
-      return result
-  }
-}
-
 def parseJSON(String response, String secretName){
 
   def result = new JsonSlurperClassic().parseText(response)
@@ -35,5 +20,20 @@ def parseJSON(String response, String secretName){
   catch(Exception err)
   {
       error err.toString()
+  }
+}
+
+def call(String nodeName, String vaultAddress, String username, String password, String secretName) {
+
+  node(nodeName){
+
+      response = sh(returnStdout: true, script:"set +x; curl -s " + vaultAddress + "/v1/auth/userpass/login/" + username +" -d '{ \"password\": \"" + password + "\" }'").trim()
+      def result = parseJSON(response, "client_token")
+      def vault_token = result.toString()
+
+      secrets = sh(returnStdout: true, script:"set +x; curl -s -X GET -H \"X-Vault-Token:" + vault_token + "\" " + vaultAddress + "/v1/secret/" + secretName).trim()
+      result = parseJSON(secrets, "data")
+
+      return result
   }
 }
