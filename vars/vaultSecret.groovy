@@ -23,7 +23,7 @@ def parseJSON(String response, String secretName){
   }
 }
 
-def call(String nodeName, String vaultAddress, String username, String password, String secretName) {
+def call(String username, String password, String secretName,  String vaultAddress, String nodeName = 'master') {
 
   node(nodeName){
 
